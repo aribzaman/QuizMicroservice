@@ -1,0 +1,184 @@
+questionservice -8080
+questionservice2-8081
+quizservice	-8082
+serviceregistry -8761
+apigateway	-8756
+
+Note- open feign and eureka discovery is commented at first in questionservice & quizservice microservices
+
+
+[[ questionservice @ 8080 ]]
+POM= {Spring Web, dataJPA, MySqlDriver, lombok, OpenFeign**, EurekaDiscoveryClient}
+
+-------------------- new endpoints
+//endPoint :: Func. Name //
+
+//create   :: getQuestionsForQuiz // 
+input: quiz category(qc) and number of questions(n) needed
+output: n ids of random questions 
+
+//getids   :: getQuestionsByIds //
+input: list of ids of questions
+output: questions of those ids wrapped by questionwrapper(q+options)
+
+//score    :: calculate //
+input: List of reponses (ques_id , string response)
+output: Integer score
+
+--------------------
+//Run Multiple instance of same Microservice
+
+[editor] on left side of run Button -> edit config
+you can copy your current config by copy button {Lec#16t08:50}
+go to 'modify options' button -> 'add VM options' -> type in the 'VM Options' box this >> '-Dserver.port=8081' -> hit apply -> ok -> now run to have 2 instance
+
+---\\------\\-------\\----
+
+[[ quizservice @ 8082 ]]
+POM= {same as before}
+
+-------------------- new endpoints
+//endPoint :: Func. Name //
+
+//add    ::  createQuiz //
+input: QuizDto[category,numQ,Title]
+output: ResponseEntity<String> succ/fail
+
+=== PAUSING QUIZ SERVICE FILE ===
+
+since createQuiz needs question ids we need to contact Question service therefore we use these->
+
+--------- Connecting Services
+
+### THEORIES
+### (Service Discovery) - Quiz service will try to find other services & other services needs to be discoverable. We'll use a server for it. One of famous is Eureka Server. All services registered on this Eureka server and the clients can find other clients by this server using only service names. Service Discovery Server - Sometimes called  Naming server.
+	 Netflix Eureka - microservices becomes client and all are connected to a single server, for locating services for the purpose of load balancing and failover of middle-tier servers1. Eureka allows services to find and communicate with each other without hard-coding the hostname and port. The only ‘fixed point’ in such an architecture is the service registry, with which each service has to register
+		
+### (Feign Client) - We can use RestTemplates to fetch data from endpoints of other services but We don't want to use IP Addresses i.e. localhost & neither hardcore Port i.e. 8081,8090 etc. it's only god for development not prodcction.
+	OpenFeign is that you don’t have to write any code for calling the service other than an interface definition, it provides a declarative way of calling other services. This makes it easier to create and maintain REST clients in your Spring Boot applications.
+
+---\\------\\-------\\----
+
+[[ serviceregistry @ 8761 ]]
+POM= {Spring Web, EurekaServer}
+
+1. Put @EnableEurekaServer annotation under @sprign annotation in main file
+2. Chaneg App.prop  -> 
+2.a. Name this servce -> spring.application.name=serviceregistry
+2.b. mention hostname -> eureka.instance.hostname=localhost
+2.c. server port      -> server.port=8761
+2.d. don't register yourself as a client on server->  eureka.client.register-with-eureka=false
+ 
+
+#Additionals
+#eureka.client.registerWithEureka=false
+#eureka.client.fetchRegistry=false
+#eureka.client.serviceUrl.defaultZone=http://localhost:8010/eureka
+
+Now time to register services in this server->
+1a. Add Service name  -> spring.application.name= questionservice
+1b. Uncomment Euerka Client Dependency in pom file and reload-> rerun -> refresh discovery server page & voila!
+1bi. you can also run muliple instances and that will aslo be registered automatically to the server.
+
+2. Establishing connection to questionservice from quizservice
+2i.    Uncomment OpenFeign and EurekaClientDiscovery dependency from pom file.
+2ii.   use @EnableFeignClients annotation in main file.
+2iii.  give port -> server.port=8081
+2iv.   name this service -> spring.application.name=quizservice
+2v.a)  A feign interfacace in pkg feign.QuizInterface. Use annotation wiht the service name to connect to, in CAPS ->
+	@FeignClient("Questionservice") //The name of Service can be found from Discovery Server.
+	->now copy the entire controller methods and remove their implementations (since its an interface).
+	//Also don't forget to mention the entire path of endpoint i.e. '/questions/add' & not just '/add'
+2v.b)  @Autowire this inteface in service file of quiz (using this instead of rest Template)
+
+=== RESUMING QUIZ SERVICE FILE ===
+
+createQuiz() has to call question service to generate random questions of some category of total n number of questions.
+Note- Modify Quiz entity to store List<Integer> as opposed to List<Questions> and change @ElementCollection from @ManyToMany
+
+//fetches n number of question ids of category xyz from FeignClient, puts title of quiz as per user choice and stores quiz by QuizDao
+
+//questions/{id}    ::  getQuestionsByQuizId //
+Method used for getting all the questions belonging to a quiz by its id. In the Quiz DB we only have IDs of questions pertaining to a quiz. so We send this list of IDs (List<Integer>) to fetch List<QuestionsEntityWrapper>
+
+input: int id
+output: ResponseEntity<List<QuestionsEntityWrapper>>
+
+///score/{quizid}    ::  calculate //
+
+quiz id is basicall useless since the score can be calculated by fetching Question service score with List<response[ques_id+response]>
+
+input: int quizid, List<Response> response
+output: ResponseEntity<Integer>
+
+---\\------\\-------\\----
+
+LOAD BALANCING
+We can have multiple instances of a microservices, that is how we horizontally scale an app and based on whihc service is free, the query is directed to that server. This is LoadBalancing.
+These jar files come by default with spring- spring-cloud-loadbalancer & spring-cloud-started-loadbalancer.
+We don't have to set it up. @FeignClient Annotation already manages it and sends the request to the appropriate service. And by Default it alternatively sends request to the 2 instances.
+to check this you can print the port number on any of of the api endpoint in the questionservice by using Environment in getQuestionsByIds() func. in questioservice service file:
+
+@Autowired Environment environment;
+System.out.println(environment.getProperty("local.server.port")); 
+
+//now hit the api from quiz service and it will Print the port number of the instance of the current server. Since Requests hits on both instances one by one, both number will be printed 
+
+http://localhost:8081/quiz/questions/1
+
+---\\------\\-------\\----
+
+API GATEWAY
+User looks at all the microservices under one url, so we shouldn't have different name and different ports for accessing resources.
+Spring-cloud provides us with the gateway 
+
+
+//api gateway gives you a front port through which you can navigate into different services, like it gives you a port- 8086 (in this case)
+//now instead of navigating throug different ports 8080,8081,8082, you have to go through 1357
+//after this, you just have to mention the instance name from which you are trying to access the service and not hardcode the ports
+
+[[ apigateway @ 8765 ]]
+POM= {Gateway, EurekaDiscoveryClient}
+
+-modify app.prop->
+spring.application.name=apigateway
+server.port=8765
+
+-before we used to go for apis with their own service's port number which is hard to remember like this,
+ 
+http://localhost:8081/quiz/questions/1
+
+-but with out gateway in between, all the services are accessed through their service names. Since API Gateway doesnt know about the different names of the microservices, we need to enable searching in app.prop so that API Gateway can search for the names.
+
+spring.cloud.gateway.discovery.locator.enabled=true
+
+-now we can access by name like this:-
+
+http://localhost:8765/QUIZSERVICE/quiz/questions/1
+
+- for turning the instance name in the api link to lower case
+spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
+-now we can access by name like this:-
+http://localhost:8765/quizservice/quiz/questions/1
+
+[PROBLEM] : use eureka.instance.hostname=localhost for services & API Gateway.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
