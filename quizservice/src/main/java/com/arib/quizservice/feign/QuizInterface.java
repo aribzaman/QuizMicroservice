@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.arib.quizservice.entities.QuestionsEntityWrapper;
 import com.arib.quizservice.entities.Response;
 
-@FeignClient("QUESTIONSERVICE") // this is the name of the instance present in the eureka server, //go to quizservice from here next(study)
+@FeignClient("QUESTIONSERVICE")
 public interface QuizInterface {
 
-	//BELOW DATA IS TAKEN FROM QUESTIONSERVICE CONTTROLLER //addign questions/ before because as it was in controller
-	
-	// Generate Questions for quiz creation category num
-	@GetMapping("questions/create")
+	// Generate n Random Questions of some category for quiz creation
+	@GetMapping("questions/generate")
 	public ResponseEntity<List<Integer>> createQuiz(@RequestParam String category, @RequestParam Integer num);
 
 	// Send questions for question id(s)

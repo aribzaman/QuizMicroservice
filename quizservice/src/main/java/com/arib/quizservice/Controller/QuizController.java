@@ -2,7 +2,12 @@ package com.arib.quizservice.Controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.arib.quizservice.entities.QuestionsEntityWrapper;
+import com.arib.quizservice.entities.QuizDto;
+import com.arib.quizservice.entities.QuizEntity;
+import com.arib.quizservice.entities.Response;
+import com.arib.quizservice.services.QuizService;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,37 +15,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.arib.quizservice.dao.QuizDao;
-import com.arib.quizservice.entities.QuestionsEntityWrapper;
-import com.arib.quizservice.entities.QuizDto;
-import com.arib.quizservice.entities.QuizEntity;
-import com.arib.quizservice.entities.Response;
-import com.arib.quizservice.services.QuizService;
 
 @RestController
 @RequestMapping("quiz")
+@AllArgsConstructor
 public class QuizController {
 
-	@Autowired
-	QuizDao quizd;
-
-	@Autowired
-	QuizService quizs;
+	QuizService quizService;
 
 	// GET all quizes
-	@GetMapping("/all")
+	@GetMapping
 	public List<QuizEntity> getAll() {
-		return quizd.findAll();
+		return quizService.findAll();
 	}
 
 	// GET a quiz by primary id
 	@GetMapping("/{id}")
 	public ResponseEntity<Object> getQuizById(@PathVariable int id) {
 		try {
-			return new ResponseEntity<>(quizd.findById(id),HttpStatus.OK);
+			return new ResponseEntity<>(quizService.findById(id),HttpStatus.OK);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -48,14 +42,11 @@ public class QuizController {
 		}
 	}
 
-	//---------------------- Additional methods for microservices
-
 	// ADD a new quiz (by request body)
-	@PostMapping(path = "/add")
+	@PostMapping
 	public ResponseEntity<String> createQuiz(@RequestBody QuizDto quiz) {
-		//QuizDto[category,numQ,Title]
 		try {
-			quizs.createQuizByReq(quiz);
+			quizService.createQuizByReq(quiz);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ResponseEntity.ok().body("{\"message\":\"error\"}");
@@ -63,11 +54,11 @@ public class QuizController {
 		return ResponseEntity.ok().body("{\"message\":\"success\"}");
 	}
 
-	//GET Questions of a quiz by Quiz id
+	//GET Questions of a quiz by its Quiz id
 	@GetMapping("/questions/{id}")
 	public ResponseEntity<List<QuestionsEntityWrapper>> getQuestionsByQuizId(@PathVariable int id) {
 		try {
-			return quizs.getQuestionsByQuizId(id);
+			return quizService.getQuestionsByQuizId(id);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -79,7 +70,7 @@ public class QuizController {
 	@PostMapping("/score/{quizid}")
 	public ResponseEntity<Integer> calculate(@PathVariable int quizid, @RequestBody List<Response> response)
 	{
-		return quizs.calculate(quizid,response);
+		return quizService.calculate(quizid,response);
 	}
 
 }
