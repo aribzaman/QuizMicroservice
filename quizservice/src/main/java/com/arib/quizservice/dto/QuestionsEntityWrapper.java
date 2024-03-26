@@ -1,4 +1,4 @@
-package com.arib.quizservice.entities;
+package com.arib.quizservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class QuestionsEntityWrapper {
-	int ques_id;
+	int id;
 	String questiontext;
 	String option1;
 	String option2;

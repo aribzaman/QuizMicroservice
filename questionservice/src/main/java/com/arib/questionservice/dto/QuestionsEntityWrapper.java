@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class QuestionsEntityWrapper {
 
-	int ques_id;
+	int id;
 	String questiontext;
 	String option1;
 	String option2;

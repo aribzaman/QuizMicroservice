@@ -2,14 +2,18 @@ package com.arib.quizservice.Controller;
 
 import java.util.List;
 
-import com.arib.quizservice.entities.QuestionsEntityWrapper;
-import com.arib.quizservice.entities.QuizDto;
+import com.arib.quizservice.dto.QuestionsEntityWrapper;
+import com.arib.quizservice.dto.QuizDto;
+import com.arib.quizservice.dto.Response;
 import com.arib.quizservice.entities.QuizEntity;
-import com.arib.quizservice.entities.Response;
 import com.arib.quizservice.services.QuizService;
-import lombok.AllArgsConstructor;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,59 +22,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("quiz")
-@AllArgsConstructor
+@RequestMapping("api/v1/quiz")
+@RequiredArgsConstructor
+@Validated
 public class QuizController {
 
-	QuizService quizService;
+	final QuizService quizService;
 
-	// GET all quizes
 	@GetMapping
 	public List<QuizEntity> getAll() {
 		return quizService.findAll();
 	}
 
-	// GET a quiz by primary id
 	@GetMapping("/{id}")
-	public ResponseEntity<Object> getQuizById(@PathVariable int id) {
-		try {
-			return new ResponseEntity<>(quizService.findById(id),HttpStatus.OK);
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			return new ResponseEntity<>("unsuccess",HttpStatus.BAD_REQUEST);
-		}
+	public QuizEntity getQuizById(@PathVariable @Positive Integer id) {
+			return quizService.findById(id);
 	}
 
-	// ADD a new quiz (by request body)
+	//Creates a quiz by the given information {Category, Number of Questions, Title}
 	@PostMapping
-	public ResponseEntity<String> createQuiz(@RequestBody QuizDto quiz) {
-		try {
-			quizService.createQuizByReq(quiz);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.ok().body("{\"message\":\"error\"}");
-		}
-		return ResponseEntity.ok().body("{\"message\":\"success\"}");
+	public ResponseEntity<String> createQuiz(@RequestBody @Valid QuizDto quiz) {
+		quizService.createQuizByReq(quiz);
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
-	//GET Questions of a quiz by its Quiz id
-	@GetMapping("/questions/{id}")
-	public ResponseEntity<List<QuestionsEntityWrapper>> getQuestionsByQuizId(@PathVariable int id) {
-		try {
-			return quizService.getQuestionsByQuizId(id);
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);
-		}
+	@GetMapping("/{quizId}/questions")
+	public List<QuestionsEntityWrapper> getQuestionsByQuizId(@PathVariable @Positive Integer quizId) {
+		return quizService.getQuestionsByQuizId(quizId);
 	}
-	
-	//Calculate Score for responses
-	@PostMapping("/score/{quizid}")
-	public ResponseEntity<Integer> calculate(@PathVariable int quizid, @RequestBody List<Response> response)
+
+	@GetMapping("/{quizId}/score")
+	public Integer calculate(@PathVariable @Positive Integer quizId, @RequestBody @NotEmpty List<Response> response)
 	{
-		return quizService.calculate(quizid,response);
+		return quizService.calculate(quizId,response);
 	}
-
 }

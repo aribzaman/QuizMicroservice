@@ -1,0 +1,385 @@
+{
+	"info": {
+		"_postman_id": "6e99a0dc-1a1f-47a7-93c8-871480d172cb",
+		"name": "Quiz Microservice",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31043860"
+	},
+	"item": [
+		{
+			"name": "Question Service",
+			"item": [
+				{
+					"name": "All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Questions By Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions/category/python",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"category",
+								"python"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"questiontext\": \"What is the capital of France?\",\r\n  \"questioncategory\": \"Geography\",\r\n  \"difficultylevel\": \"Medium\",\r\n  \"option1\": \"Paris\",\r\n  \"option2\": \"London\",\r\n  \"option3\": \"Berlin\",\r\n  \"option4\": \"Madrid\",\r\n  \"correct\": \"Paris\",\r\n  \"explanation\": \"Paris is the capital city of France.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "By Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions/32",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"32"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "By Ids",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions/by-ids?ids=4,5,1,2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"by-ids"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "4,5,1,2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Question ids",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions/generate?num=5&category=Java",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"generate"
+							],
+							"query": [
+								{
+									"key": "num",
+									"value": "5"
+								},
+								{
+									"key": "category",
+									"value": "Java"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Score",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"id\":2,\r\n        \"response\":\"Garbage Collection\"\r\n    },\r\n    {\r\n        \"id\":1,\r\n        \"response\":\"Java Virtual Machine\"\r\n    },\r\n    {\r\n        \"id\":3,\r\n        \"response\": \"Inheritance\"\r\n    },\r\n    {\r\n        \"id\":\"311\",\r\n        \"response\": \"Inheritance\"\r\n    }\r\n]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8765/api/v1/questions/score",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"questions",
+								"score"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Quiz Service",
+			"item": [
+				{
+					"name": "All Quiz",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category\": \"java\",\r\n    \"num\": 3,\r\n    \"title\": \"aaa Test Series\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8765/api/v1/quiz",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"quiz"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/quiz/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"quiz",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Quiz",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"category\": \"Programming Concepts\",\r\n    \"num\": 4,\r\n    \"title\": \"Programming Test Series5\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8765/api/v1/quiz",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"quiz"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Questions of Quiz Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8765/api/v1/quiz/1/questions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"quiz",
+								"1",
+								"questions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Score of Quiz",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n        {\r\n            \"id\": 19,\r\n            \"response\": \"Compiler\"\r\n        },\r\n        {\r\n            \"id\": 20,\r\n            \"response\": \"Syntax\"\r\n        },\r\n        {\r\n            \"id\": 21,\r\n            \"response\": \"Inheritance\"\r\n        },\r\n        {\r\n            \"id\": 23,\r\n            \"response\": \"SyntaxError\"\r\n        }\r\n    ]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8765/api/v1/quiz/1/score",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8765",
+							"path": [
+								"api",
+								"v1",
+								"quiz",
+								"1",
+								"score"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -1,15 +1,13 @@
-package com.arib.questionservice.dto;
+package com.arib.quizservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class Response implements Comparable<Response> {
 
-	int id;
+	Integer id;
 	String response;
 
 	@Override
